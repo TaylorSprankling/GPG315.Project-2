@@ -23,7 +23,7 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private GameObject _choiceButtonContainer;
     
     private Languages _chosenLanguage = Languages.English;
-    private Dictionary<string, RuntimeDialogueNode> _nodeLookup = new();
+    private Dictionary<string, RuntimeDialogueNode> _nodeDictionary = new();
     private RuntimeDialogueNode _currentDialogueNode;
     
     public enum Languages
@@ -36,6 +36,16 @@ public class DialogueManager : MonoBehaviour
     {
         _chosenLanguage = (Languages)languageIndex;
         _languagePanel.SetActive(false);
+        switch (_chosenLanguage)
+        {
+            default:
+            case Languages.English:
+                _continueButton.GetComponentInChildren<TextMeshProUGUI>().text = "Continue...";
+                break;
+            case Languages.Español:
+                _continueButton.GetComponentInChildren<TextMeshProUGUI>().text = "Continuar...";
+                break;
+        }
         StartDialogue();
     }
     
@@ -63,7 +73,7 @@ public class DialogueManager : MonoBehaviour
     {
         foreach (RuntimeDialogueNode node in _runtimeGraph.AllNodes)
         {
-            _nodeLookup.Add(node.NodeID, node);
+            _nodeDictionary.Add(node.NodeID, node);
         }
         
         if (!string.IsNullOrEmpty(_runtimeGraph.EntryNodeID))
@@ -78,7 +88,7 @@ public class DialogueManager : MonoBehaviour
     
     private void ShowNode(string nodeID)
     {
-        if (!_nodeLookup.TryGetValue(nodeID, out RuntimeDialogueNode value))
+        if (!_nodeDictionary.TryGetValue(nodeID, out RuntimeDialogueNode value))
         {
             EndDialogue();
             return;
@@ -156,7 +166,7 @@ public class DialogueManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-        _nodeLookup.Clear();
+        _nodeDictionary.Clear();
         _restartPanel.SetActive(true);
     }
 }
