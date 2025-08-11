@@ -8,7 +8,9 @@ public class RuntimeDialogueNode
     public string NodeID;
     public Sprite SpeakerPortrait;
     public string SpeakerName;
+    public List<string> LocalizedName = new();
     public string DialogueText;
+    public List<string> LocalizedText = new();
     public string NextNodeID;
-    public List<BranchData> BranchesData = new();
+    public List<BranchData> Branches = new();
 }

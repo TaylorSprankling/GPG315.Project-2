@@ -4,13 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Basic example script a developer may create to use this tool
+/// Example script a developer may create to use the dialogue graph
 /// </summary>
 public class DialogueManager : MonoBehaviour
 {
     [SerializeField] private RuntimeDialogueGraph _runtimeGraph;
     
+    [SerializeField] private GameObject _languagePanel;
     [SerializeField] private GameObject _dialoguePanel;
+    [SerializeField] private GameObject _restartPanel;
+    
     [SerializeField] private Image _speakerPortrait;
     [SerializeField] private TextMeshProUGUI _speakerNameText;
     [SerializeField] private TextMeshProUGUI _dialogueText;
@@ -19,8 +22,22 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private GameObject _choiceButtonScrollView;
     [SerializeField] private GameObject _choiceButtonContainer;
     
+    private Languages _chosenLanguage = Languages.English;
     private Dictionary<string, RuntimeDialogueNode> _nodeLookup = new();
     private RuntimeDialogueNode _currentDialogueNode;
+    
+    public enum Languages
+    {
+        English = -1,
+        Español,
+    }
+    
+    public void ChooseLanguage(int languageIndex)
+    {
+        _chosenLanguage = (Languages)languageIndex;
+        _languagePanel.SetActive(false);
+        StartDialogue();
+    }
     
     public void Continue()
     {
@@ -36,7 +53,13 @@ public class DialogueManager : MonoBehaviour
         }
     }
     
-    private void Start()
+    public void Restart()
+    {
+        _restartPanel.SetActive(false);
+        _languagePanel.SetActive(true);
+    }
+    
+    private void StartDialogue()
     {
         foreach (RuntimeDialogueNode node in _runtimeGraph.AllNodes)
         {
@@ -65,28 +88,55 @@ public class DialogueManager : MonoBehaviour
         
         _dialoguePanel.SetActive(true);
         _speakerPortrait.sprite = _currentDialogueNode.SpeakerPortrait;
-        _speakerNameText.SetText(_currentDialogueNode.SpeakerName);
-        _dialogueText.SetText(_currentDialogueNode.DialogueText);
+        
+        switch (_chosenLanguage)
+        {
+            default:
+            case Languages.English:
+                _speakerNameText.SetText(_currentDialogueNode.SpeakerName);
+                _dialogueText.SetText(_currentDialogueNode.DialogueText);
+                break;
+            case Languages.Español:
+                _speakerNameText.SetText(_currentDialogueNode.LocalizedName[(int)Languages.Español]);
+                _dialogueText.SetText(_currentDialogueNode.LocalizedText[(int)Languages.Español]);
+                break;
+        }
         
         foreach (Transform child in _choiceButtonContainer.transform)
         {
             Destroy(child.gameObject);
         }
         
-        if (_currentDialogueNode.BranchesData.Count > 0)
+        if (_currentDialogueNode.Branches.Count > 0)
         {
             _continueButton.SetActive(false);
             _choiceButtonScrollView.SetActive(true);
-            foreach (BranchData branchData in _currentDialogueNode.BranchesData)
+            int i = 0;
+            foreach (BranchData branchData in _currentDialogueNode.Branches)
             {
+                i++;
                 Button button = Instantiate(_choiceButtonPrefab, _choiceButtonContainer.transform).GetComponent<Button>();
                 TextMeshProUGUI buttonText = button.GetComponentInChildren<TextMeshProUGUI>();
-                buttonText.text = branchData.BranchText;
-                button.onClick.AddListener(() =>
-                                           {
-                                               if (!string.IsNullOrEmpty(branchData.NextNodeID)) ShowNode(branchData.NextNodeID);
-                                               else EndDialogue();
-                                           });
+                
+                switch (_chosenLanguage)
+                {
+                    default:
+                    case Languages.English:
+                        buttonText.text = $"<b>{i}.</b>" + branchData.BranchText;
+                        break;
+                    case Languages.Español:
+                        buttonText.text = $"<b>{i}.</b>" + branchData.LocalizedText[(int)Languages.Español];
+                        break;
+                }
+                
+                if (!string.IsNullOrEmpty(branchData.NextNodeID))
+                {
+                    button.onClick.AddListener(() => ShowNode(branchData.NextNodeID));
+                }
+                else
+                {
+                    EndDialogue();
+                }
             }
         }
         else
@@ -106,5 +156,7 @@ public class DialogueManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+        _nodeLookup.Clear();
+        _restartPanel.SetActive(true);
     }
 }

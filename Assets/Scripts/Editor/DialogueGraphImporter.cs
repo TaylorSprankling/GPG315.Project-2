@@ -53,6 +53,13 @@ public class DialogueGraphImporter : ScriptedImporter
         runtimeNode.SpeakerName = GetPortValue<string>(node.GetInputPortByName("Speaker Name"));
         runtimeNode.DialogueText = GetPortValue<string>(node.GetInputPortByName("Dialogue Text"));
         
+        node.GetNodeOptionByName(DialogueNode.LanguagesOptionID).TryGetValue(out int languagesValue);
+        for (int i = 1; i < languagesValue; i++)
+        {
+            runtimeNode.LocalizedName.Add(GetPortValue<string>(node.GetInputPortByName($"L{i}: Speaker Name")));
+            runtimeNode.LocalizedText.Add(GetPortValue<string>(node.GetInputPortByName($"L{i}: Dialogue Text")));
+        }
+        
         IPort nextNodePort = node.GetOutputPortByName("Output").firstConnectedPort;
         
         if (nextNodePort != null)
@@ -67,20 +74,27 @@ public class DialogueGraphImporter : ScriptedImporter
         runtimeNode.SpeakerName = GetPortValue<string>(node.GetInputPortByName("Speaker Name"));
         runtimeNode.DialogueText = GetPortValue<string>(node.GetInputPortByName("Dialogue Text"));
         
-        IEnumerable<IPort> branchOutputPort = node.GetOutputPorts().Where(predicate => predicate.name.StartsWith("Branch "));
-        
-        foreach (IPort outputPort in branchOutputPort)
+        node.GetNodeOptionByName(BranchingNode.LanguagesOptionID).TryGetValue(out int languagesValue);
+        for (int i = 1; i < languagesValue; i++)
         {
-            string index = outputPort.name.Substring("Branch Output ".Length);
-            IPort textPort = node.GetInputPortByName($"Branch Text {index}");
-            
+            runtimeNode.LocalizedName.Add(GetPortValue<string>(node.GetInputPortByName($"L{i}: Speaker Name")));
+            runtimeNode.LocalizedText.Add(GetPortValue<string>(node.GetInputPortByName($"L{i}: Dialogue Text")));
+        }
+        
+        node.GetNodeOptionByName(BranchingNode.BranchCountOptionID).TryGetValue(out int branchesValue);
+        for (int i = 1; i <= branchesValue; i++)
+        {
+            IPort outputPort = node.GetOutputPortByName($"Branch Output {i}");
             BranchData branchData = new()
             {
-                BranchText = GetPortValue<string>(textPort),
+                BranchText = GetPortValue<string>(node.GetInputPortByName($"Branch Text {i}")),
                 NextNodeID = outputPort.firstConnectedPort != null ? nodeIDMap[outputPort.firstConnectedPort.GetNode()] : null
             };
-            
-            runtimeNode.BranchesData.Add(branchData);
+            for (int j = 1; j < languagesValue; j++)
+            {
+                branchData.LocalizedText.Add(GetPortValue<string>(node.GetInputPortByName($"L{j}: Branch Text {i}")));
+            }
+            runtimeNode.Branches.Add(branchData);
         }
     }
     
