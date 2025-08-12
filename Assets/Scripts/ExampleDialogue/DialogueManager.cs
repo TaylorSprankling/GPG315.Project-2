@@ -8,7 +8,7 @@ using UnityEngine.UI;
 /// </summary>
 public class DialogueManager : MonoBehaviour
 {
-    [SerializeField] private RuntimeDialogueGraph _runtimeGraph;
+    [SerializeField] private DialogueData _dialogueData;
     
     [SerializeField] private GameObject _languagePanel;
     [SerializeField] private GameObject _dialoguePanel;
@@ -71,14 +71,14 @@ public class DialogueManager : MonoBehaviour
     
     private void StartDialogue()
     {
-        foreach (RuntimeDialogueNode node in _runtimeGraph.AllNodes)
+        foreach (RuntimeDialogueNode node in _dialogueData.AllNodes)
         {
             _nodeDictionary.Add(node.NodeID, node);
         }
         
-        if (!string.IsNullOrEmpty(_runtimeGraph.EntryNodeID))
+        if (!string.IsNullOrEmpty(_dialogueData.EntryNodeID))
         {
-            ShowNode(_runtimeGraph.EntryNodeID);
+            ShowNode(_dialogueData.EntryNodeID);
         }
         else
         {

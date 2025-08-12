@@ -11,7 +11,7 @@ public class DialogueGraphImporter : ScriptedImporter
     public override void OnImportAsset(AssetImportContext ctx)
     {
         DialogueGraph editorGraph = GraphDatabase.LoadGraph<DialogueGraph>(ctx.assetPath);
-        RuntimeDialogueGraph runtimeDialogueGraph = ScriptableObject.CreateInstance<RuntimeDialogueGraph>();
+        DialogueData dialogueData = ScriptableObject.CreateInstance<DialogueData>();
         Dictionary<INode, string> nodeIDMap = new();
         
         foreach (INode node in editorGraph.GetNodes())
@@ -21,7 +21,7 @@ public class DialogueGraphImporter : ScriptedImporter
         
         StartNode startNode = editorGraph.GetNodes().OfType<StartNode>().FirstOrDefault();
         IPort entryPort = startNode?.GetOutputPorts().FirstOrDefault()?.firstConnectedPort;
-        runtimeDialogueGraph.EntryNodeID = entryPort != null ? nodeIDMap[entryPort.GetNode()] : null;
+        dialogueData.EntryNodeID = entryPort != null ? nodeIDMap[entryPort.GetNode()] : null;
         
         foreach (INode node in editorGraph.GetNodes())
         {
@@ -33,18 +33,18 @@ public class DialogueGraphImporter : ScriptedImporter
             {
                 case DialogueNode dialogueNode:
                     ProcessDialogueNode(dialogueNode, runtimeDialogueNode, nodeIDMap);
-                    runtimeDialogueGraph.AllNodes.Add(runtimeDialogueNode);
+                    dialogueData.AllNodes.Add(runtimeDialogueNode);
                     break;
                 
                 case BranchingNode branchingNode:
                     ProcessBranchNode(branchingNode, runtimeDialogueNode, nodeIDMap);
-                    runtimeDialogueGraph.AllNodes.Add(runtimeDialogueNode);
+                    dialogueData.AllNodes.Add(runtimeDialogueNode);
                     break;
             }
         }
         
-        ctx.AddObjectToAsset("RuntimeData", runtimeDialogueGraph);
-        ctx.SetMainObject(runtimeDialogueGraph);
+        ctx.AddObjectToAsset("RuntimeData", dialogueData);
+        ctx.SetMainObject(dialogueData);
     }
     
     private void ProcessDialogueNode(DialogueNode node, RuntimeDialogueNode runtimeNode, Dictionary<INode, string> nodeIDMap)
