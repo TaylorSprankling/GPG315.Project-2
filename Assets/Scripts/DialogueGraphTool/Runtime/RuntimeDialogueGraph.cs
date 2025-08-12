@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "NewDialogueData", menuName = "Dialogue/Scriptable Object Data")]
 public class RuntimeDialogueGraph : ScriptableObject
 {
     public string EntryNodeID;
