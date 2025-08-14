@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DialogueGraphPlugin;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

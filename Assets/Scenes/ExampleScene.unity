@@ -1258,7 +1258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce64d2bf22cc4b3ea7f5ec905452bfe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueManager
-  _dialogueData: {fileID: 3965311268370046156, guid: f72c09520af3e3249bd7cd3cf3397fed, type: 3}
+  _dialogueData: {fileID: 3965311268370046156, guid: 1ef754291217a884ab78a542a8695e15, type: 3}
   _languagePanel: {fileID: 959772761}
   _dialoguePanel: {fileID: 1609131377}
   _restartPanel: {fileID: 1829068546}
