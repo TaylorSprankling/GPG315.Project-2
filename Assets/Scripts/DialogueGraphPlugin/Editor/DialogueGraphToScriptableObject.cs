@@ -19,8 +19,16 @@ namespace DialogueGraphPlugin
                 DialogueData graphData = CreateInstance<DialogueData>();
                 graphData.EntryNodeID = graph.EntryNodeID;
                 graphData.AllNodes = graph.AllNodes;
-                string folderPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(obj));
-                string fileName = obj.name + "Data.asset";
+                string assetPath = AssetDatabase.GetAssetPath(obj);
+                string folderPath = Path.GetDirectoryName(assetPath);
+                string nameString = "Data";
+                
+                if (assetPath.EndsWith(".asset"))
+                {
+                    nameString = "";
+                }
+                
+                string fileName = obj.name + $"{nameString}.asset";
                 
                 if (folderPath == null)
                 {
@@ -33,7 +41,7 @@ namespace DialogueGraphPlugin
                     int iteration = 1;
                     while (File.Exists(Path.Combine(folderPath, fileName)))
                     {
-                        fileName = obj.name + $"Data{iteration}.asset";
+                        fileName = obj.name + $"{nameString}{iteration}.asset";
                         iteration++;
                     }
                 }
